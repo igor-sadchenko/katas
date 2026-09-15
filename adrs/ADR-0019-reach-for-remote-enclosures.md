@@ -49,14 +49,16 @@ cellular cannot actually serve**, and what carries their traffic when it cannot.
    queues, the same `(device_id, boot_id, seq)` idempotency key, the same at-least-once contract
    ([ADR-0001](ADR-0001-edge-first-store-and-forward.md) §4). A missed round is a delay, never a loss —
    the site's buffer is sized for three days of rounds, and a site missed twice raises an ops ticket.
-4. **Neither alternative is bought to save money, and the arithmetic says so plainly.** A cellular
-   gateway carrying an enclosure's full traffic is ≈ €400 a year; a bridge is ≈ €3k once, which is
-   about seven years of that subscription and does not pay back inside the five-year horizon every
-   other figure here uses; the mule collector is ≈ €8k once for the whole estate, which would need
-   four no-line-of-sight sites to beat the same subscription — and would not beat it even then,
-   because decision 1 keeps the cellular link at every site that has coverage, so the subscription is
-   not saved at all. What is bought is **coverage the estate does not otherwise have**, and latency
-   for the middle class. The triggers are therefore coverage, not counting:
+4. **Neither alternative saves money, and there is no break-even to look for.** Decision 1 keeps the
+   cellular link at every site that has any coverage, so nothing here cancels a subscription: the
+   bridge and the collector are bought **on top of** the €400 a year, never instead of it. The
+   arithmetic is therefore one-way. A bridge is ≈ €3k once against a subscription it does not
+   replace — justified only where there is no coverage to subscribe to. The collector is ≈ €8k once
+   for the whole estate and relieves a link that stays paid for, so the only thing it can recover is
+   the metered overage the clip class would add at a thin-link site — a number the estate does not
+   have until the survey measures those sites, and one we do not claim will reach €8k. What both buy
+   is **reach the estate does not otherwise have**, and a home for the bulky class where its own link
+   cannot take it. The triggers are therefore coverage, not counting:
    - a **bridge** where a remote site's cellular coverage is absent, too weak for the clip class, or
      too variable to carry a tier-1 advisory;
    - the **collector** only if the survey finds a site whose link carries the critical and telemetry

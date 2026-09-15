@@ -135,6 +135,7 @@ Versioned bundles: model reference (external model ID, or our own artifact), pro
 ### AI monitoring
 - Input drift (feature distributions, image statistics), output drift (confidence histograms, class balance), and **business-metric guardrails** (vet override rate, forecast error, companion thumbs-down rate, pricing floor hits) with the thresholds in the table below.
 - Automatic rollback to the previous production bundle when a guardrail trips — for hosted bundles via the gateway route, for edge and batch models via the registry's desired version.
+- Rollback is the mechanism; the procedure around it — who may set a capability to its fallback, who owns the decision to keep it there, what evidence is preserved and what re-entry requires — is one page in [appendix · AI incident runbook](../../appendix/ai-incident-runbook.md). A member of staff saying the system told them something untrue is a trigger there, not a courtesy.
 
 ### Review queue (human in the loop)
 Confidence bands per capability decide auto-act / human review / discard-and-learn. Reviewer decisions are captured with reason codes and become training data.

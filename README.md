@@ -14,6 +14,7 @@
 - [Our approach: how we used AI](#our-approach-how-we-used-ai)
 - [Where AI sits in the working day](#where-ai-sits-in-the-working-day)
 - [Architecture at a glance](#architecture-at-a-glance)
+- [Key architectural decisions](#key-architectural-decisions)
 - [Delivery roadmap: what we build when, and what we buy](#delivery-roadmap-what-we-build-when-and-what-we-buy)
 - [Requirements](#requirements)
 - [High Level Design](#high-level-design)
@@ -41,7 +42,7 @@
 | `hld/ai-platform/` | Inference gateway (adopted) and model governance: registry, evaluation, monitoring, risk classes, cost | …judging how we handle uncertainty and verify AI |
 | [`hld/architecture-evaluation.md`](hld/architecture-evaluation.md) | Quality-attribute scenarios, the styles we rejected, sensitivity and trade-off points, risks and non-risks | …asking how the characteristics were evaluated |
 | `adrs/` | Architecture Decision Records with alternatives and trade-offs | …looking for the "why" behind any choice |
-| [`appendix/`](appendix/README.md) | The work the architecture rests on but does not consist of: business-case model, generative-cost model, daily-report specification, vendor ticketing rules, data-health runbooks, LoRaWAN airtime | …checking a number or a calculation |
+| [`appendix/`](appendix/README.md) | The work the architecture rests on but does not consist of: business-case model, generative-cost model, daily-report specification, vendor ticketing rules, data-health runbooks, the AI incident runbook, LoRaWAN airtime | …checking a number or a calculation |
 | `video/` | Semi-final video (if we get there) | |
 
 Every scenario links to its ADRs; every ADR links back to the requirements it serves. The [traceability table](#traceability-capability--requirement--decision) is the shortcut. `uv run scripts/lint_docs.py` checks links, anchors, ids, traceability, duplicated prose and every number derived from the business-case model; `uv run scripts/check_mermaid.py` renders each diagram with mermaid's own parser. GitHub Actions runs both on every push.
@@ -154,6 +155,25 @@ Notation follows the [HLD legend](hld/README.md#diagram-legend-used-in-every-dia
 
 ---
 
+## Key architectural decisions
+
+Twenty-five records stand behind the proposal and the [index](adrs/README.md) is the way in, but ten of them carry the shape of the system. Each row states what was chosen and what we accepted in exchange; the record holds the alternatives and the consequences.
+
+| Decision | What we accepted in exchange | Record |
+| --- | --- | --- |
+| **Edge-first with store-and-forward.** Patchy Wi-Fi is the dominant constraint, so safety rules and gate validation execute on the estate and the cloud is an eventual consumer of what they produce | Logic in two places, and a signed downlink to keep the estate copy current | [ADR-0001](adrs/ADR-0001-edge-first-store-and-forward.md), [ADR-0011](adrs/ADR-0011-offline-ticket-validation.md) |
+| **A channel per traffic class per remote site, chosen by measured coverage.** Cellular where it reaches, a radio bridge where it does not, delay-tolerant pickup only for clips at a thin-link site with no line of sight | Up to three delivery modes to operate, and a channel mix that stays an assumption until the Phase 0 survey | [ADR-0019](adrs/ADR-0019-reach-for-remote-enclosures.md), [ADR-0020](adrs/ADR-0020-internal-transport-and-autonomy.md) |
+| **Adopt the ticketing platform; build only what is specific to this estate.** Offline validation, passes and PCI scope are a product requirement rather than a backlog | A vendor on the critical path, and a payback window that moves if the capacity API and the upgrade credit are not on the market | [ADR-0012](adrs/ADR-0012-ticketing-platform-adopt-not-build.md) |
+| **One event backbone; four bounded contexts in a single deployable.** Ticketing, operations, welfare and guest engagement keep their boundaries in the code and share a release | Module discipline has to be enforced by review, because the runtime does not enforce it | [ADR-0004](adrs/ADR-0004-event-driven-backbone.md), [ADR-0003](adrs/ADR-0003-cloud-provider-selection.md) |
+| **No business service names a model or a provider.** A service asks for a capability; a resolver maps it to a versioned bundle behind an adopted inference gateway | One more hop on every generative call, and a gateway to run | [ADR-0005](adrs/ADR-0005-model-gateway-and-provider-independence.md), [ADR-0006](adrs/ADR-0006-edge-vs-cloud-inference.md) |
+| **Rules first, model second.** A capability ships as a rule, and its model is promoted only where it beats that rule on the capability's own metric | Slower arrival for the models, and rules to maintain after promotion — which is also why every fallback is a path that has already run in production | [ADR-0023](adrs/ADR-0023-rules-first-model-second.md) |
+| **What an error costs sets the confidence band; the risk class sets the controls.** Bands are derived from the cost of being wrong, and a capability owes evidence in proportion to its class | Two classification exercises per capability, kept honest by review rather than by a tool | [ADR-0016](adrs/ADR-0016-cost-of-error-sets-the-bands.md), [ADR-0007](adrs/ADR-0007-human-in-the-loop-confidence-bands.md), [ADR-0017](adrs/ADR-0017-ai-risk-classes-and-proportional-controls.md) |
+| **Agents propose and a human commits.** Typed least-privilege tools, effectful calls as commands into the owning context, step and token budgets, and the agent versioned apart from the model it runs on | Approval steps stay in the working day, and the agentic layer never becomes the fast path | [ADR-0013](adrs/ADR-0013-stakeholder-agents-on-typed-tools.md), [ADR-0014](adrs/ADR-0014-two-tier-agent-memory-with-a-write-guard.md) |
+| **Anonymous counters are the instrument of record, and the visitor token is opt-in.** No faces, no device tracking, no re-identification across seasons | Path data covers only the households that carry a token, so its carry rate is published beside every figure it produces | [ADR-0009](adrs/ADR-0009-visitor-privacy-anonymous-counting.md), [ADR-0018](adrs/ADR-0018-visitor-token-and-anonymised-paths.md) |
+| **One metric layer defines every number once.** The daily report, the dashboards and `agent:management` compute nothing of their own | A definition change is a reviewed change, and an agent that cannot resolve a question to a named metric refuses rather than improvising a query | [ADR-0015](adrs/ADR-0015-metric-layer-and-estate-twin.md) |
+
+---
+
 ## Delivery roadmap: what we build when, and what we buy
 
 Eight AI scenarios, twenty-three applications, four agents, two radio technologies and an edge tier are a lot for ≤ 5 engineers (NFR-OPS-1, R9, R25), so the scope is sequenced rather than cut: each phase has an entry gate, no model is promoted before the data it needs exists (A6, R7), the agents arrive two at a time, and four capabilities carry a kill gate.
@@ -220,7 +240,7 @@ The whole inventory behind these eight — twenty-three applications, their fall
 
 ## Architecture Decision Records
 
-Twenty-five, with alternatives and trade-offs. Index with status: [`adrs/README.md`](adrs/README.md)
+Twenty-five, with alternatives and trade-offs. The ten that carry the shape of the system are listed above under [key architectural decisions](#key-architectural-decisions); the index with status is [`adrs/README.md`](adrs/README.md).
 
 ---
 

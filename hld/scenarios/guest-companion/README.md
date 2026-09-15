@@ -31,7 +31,7 @@ Two more depend on the account this scenario creates: pass conversion (repeaters
 
 ```mermaid
 flowchart TB
-    V["👨‍👩‍👧 Visitor<br/>mobile web / kiosk"] --> BFF["API gateway"]
+    V["👨‍👩‍👧 Visitor<br/>PWA (mobile web) / kiosk"] --> BFF["API gateway"]
     BFF --> Orch["Companion orchestrator<br/>session · tools · policy"]
     Orch --> GW["Inference gateway 🤖<br/>capability: plan-visit / answer-question"]
     GW --> LLM(["LLM provider<br/>(interchangeable)"])
@@ -46,6 +46,18 @@ flowchart TB
     Nudge --> Msg(["Email / push"])
     Esc["👤 Staff escalation"] --- Orch
 ```
+
+**The surface is a progressive web app, not an app-store download.** A family visiting for one day will
+not install anything, so the companion opens from the QR code on the ticket, adds to the home screen if
+they want it there, and keeps the itinerary, the map and the last answers in a service-worker cache for
+the parts of the estate where Wi-Fi is patchy. The kiosks run the same application in a locked-down
+browser, which is why there is one surface to make accessible rather than three.
+
+That obligation is NFR-ACC-1 and it is a release gate, not an intention: WCAG 2.2 AA, keyboard
+navigation, labelled controls, contrast and target sizes checked by axe-core in CI, plus one manual
+screen-reader pass per phase. It also constrains the model's output — a companion answer is routinely
+spoken aloud, so meaning may not live in layout, colour or an emoji, and the read-aloud cases in
+[validation](#validation--verification) gate that.
 
 ## What it does
 - **Plan the day:** builds an itinerary from constraints (children's ages, interests, time, accessibility) using forecast and live queues; re-plans when a ride closes or a queue spikes; **steers lunch times** ("the terrace café is quiet until 12:30") because F&B seating is the second constraint to bind ([08 §1](../../../appendix/business-case-model.md#1-capacity-reality-check)).

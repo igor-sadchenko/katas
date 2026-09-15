@@ -6,7 +6,7 @@
 - [`ai-platform/`](ai-platform/README.md) — shared AI infrastructure: inference gateway (adopted OSS), model governance (registry, evaluation, monitoring) and the risk classes that say which controls a capability owes. Read this for "dealing with uncertainty" and "does it work".
   - [`ai-platform/ai-portfolio.md`](ai-platform/ai-portfolio.md) — the inventory: twenty-three AI applications, their classes, phases, fallbacks and kill gates, plus what is deliberately absent.
   - [`ai-platform/agents.md`](ai-platform/agents.md) — the four agents, their typed tools, their invariants, two worked attack chains and what the layer costs.
-- [`../appendix/`](../appendix/README.md) — calculations and specifications the design references but does not contain: business case, generative cost, daily-report spec, ticketing rules, data-health runbooks, LoRaWAN airtime.
+- [`../appendix/`](../appendix/README.md) — calculations and specifications the design references but does not contain: business case, generative cost, daily-report spec, ticketing rules, data-health runbooks, the AI incident runbook, LoRaWAN airtime.
 - [`architecture-evaluation.md`](architecture-evaluation.md) — the ATAM-style evaluation of the whole thing: quality-attribute scenarios with response measures, the architectural styles we rejected and why, sensitivity points, trade-off points, risks and non-risks.
 - [`scenarios/`](scenarios/) — one folder per AI use case. Each has the same structure: *Problem → Why AI → Solution → Containers → Diagram → Data → Validation → ADRs*.
 
